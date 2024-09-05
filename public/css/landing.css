@@ -1,0 +1,186 @@
+body {
+    height: 100vh;
+    overflow: hidden;
+    background-image: url('../images/BG2.jpeg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+:root {
+    --color-orange: #EB5B00;
+    --transition: all 0.5s ease;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+}
+
+.overlay {
+    background-color: black;
+    opacity: 0.3;
+    height: 90vh;
+    width: 100%;
+    position: absolute;
+    z-index: 1;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 50px 50px;
+    position: relative;
+    z-index: 3;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+}
+
+.nav-logo img {
+    width: 65px;
+    height: 60px;
+}
+
+nav h1 {
+    font-size: 2rem;
+}
+
+nav h1:nth-child(1) {
+    color: black;
+}
+
+nav h1:nth-child(2) {
+    color: var(--color-orange);
+}
+
+.nav-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-button a:nth-of-type(1) button {
+    height: 50px;
+    width: 120px;
+    background-color: transparent;
+    border: var(--color-orange) solid;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    color: var(--color-orange);
+}
+
+.nav-button a:nth-of-type(1):hover button {
+    background-color: var(--color-orange) ;
+    transition: var(--transition);
+    cursor: pointer;
+    color: white;
+}
+
+.nav-button a:nth-of-type(2) button {
+    height: 50px;
+    width: 120px;
+    background-color: var(--color-orange);
+    border: var(--color-orange) solid;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    color: white;
+}
+
+
+.nav-button a:nth-of-type(2):hover button {
+    background-color: rgba(0, 145, 255, 0);
+    transition: var(--transition);
+    color: var(--color-orange);
+    cursor: pointer;
+}
+
+
+/* Section */
+.section {
+    width: 85%;
+    height: 85vh;
+    border:  rgba(255, 255, 255, 0.641) solid;
+    border-radius: 20px;
+    position: relative;
+    z-index: 3;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.792);
+    backdrop-filter: blur(100px);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: end;
+}
+
+.main-section {
+    padding: 10px 10px;
+}
+
+.section-text {
+    width: 50%;
+    margin: 0 0 100px 0;
+    height: max-content;
+    display: flex;
+    flex-direction: column;
+}
+
+.section-text h1,p {
+    color: black;
+}
+
+.section-text h1 {
+    font-size: 2.5rem;
+}
+
+.section-text p {
+    font-size: 1.3rem;
+    margin: 10px 0px;
+    font-weight: 500;
+}
+
+.section-image img {
+    width: 350px;
+    margin: 0 0 100px 0;
+}
+
+.main-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.main-text {
+    display: flex;
+    height: 50%;
+}
+
+.main-text h1:nth-child(2) {
+    color: var(--color-orange);
+}
+
+.btn-section {
+    width: 150px;
+    height: 50px;
+    background-color: transparent;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    color: var(--color-orange);
+    border: var(--color-orange) solid;
+    margin: 20px 0px 0px 0;
+}
+
+.btn-section:hover {
+    background-color: var(--color-orange);
+    transition: var(--transition);
+    color: white;
+    cursor: pointer;
+}
+
