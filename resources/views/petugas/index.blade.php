@@ -37,8 +37,8 @@
                 <ul class="menu-links">
                     <li id="nav-home" class="nav-link">
                         <a href="/petugas/home">
-                            <i class='bx bx-home-alt icon'></i>
-                            <span class="text nav-text">Home</span>
+                            <i class='bx bxs-notepad icon'></i>
+                            <span class="text nav-text">Transaction</span>
                         </a>
                     </li>
 
@@ -86,39 +86,41 @@
             <div class="header">
                 <div class="text">Menu Category</div>
                 <div class="search-bar">
-                    <input type="text" placeholder="Search..">
-                    <button type="button">
+                    <input type="text" placeholder="Search.." id="search-input">
+                    <button type="button" id="search-button">
                         <i class='bx bx-search-alt-2'></i>
                     </button>
                 </div>
             </div>
+
+            {{-- Category Menu Button --}}
             <div class="category">
                 <div class="category-menu">
-                    <button class="default-button">All</button>
-                    <button>Burger</button>
-                    <button>Pizza</button>
-                    <button>Drink</button>
-                    <button>Ice Cream</button>
-                    <button>Other</button>
-
+                    <button class="default-button" data-category="all">All</button>
+                    @foreach ($categories as $category)
+                        <button data-category="{{ $category->id }}">{{ $category->category_name }}</button>
+                    @endforeach
                 </div>
             </div>
+
             <div class="text">Choose Order</div>
             <div class="product">
                 @foreach ($products as $product)
                     <div class="product-item" data-name="{{ $product->product_name }}"
                         data-price="{{ $product->price }}" data-stock="{{ $product->stock }}"
-                        data-image="{{ Storage::url($product->image) }}">
-                        <h3>Stock: {{ $product->stock }}</h3>
+                        data-image="{{ Storage::url($product->image) }}"
+                        data-category="{{ $product->categories_id }}">
                         <img src="{{ Storage::url($product->image) }}" alt="{{ $product->product_name }}">
                         <h1>{{ $product->product_name }}</h1>
                         <p>Rp. {{ number_format($product->price, 0, ',', '.') }}</p>
+                        <h3>Stock: {{ $product->stock }}</h3>
                         <div class="add-to-cart">
                             <button>Add To Cart +</button>
                         </div>
                     </div>
                 @endforeach
             </div>
+
 
         </div>
         <div class="transaction">

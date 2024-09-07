@@ -1,60 +1,82 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Mengaktifkan dan menonaktifkan state nav
     const homeNav = document.getElementById('nav-home');
     const productItemNav = document.getElementById('nav-product-item');
     const categoryNav = document.getElementById('nav-category');
-    // Fungsi untuk mengaktifkan dan menonaktifkan state
-    function activateNav(activeNav, inactiveNav) {
+
+    function activateNav(activeNav, ...inactiveNavs) {
         activeNav.classList.add('active');
-        inactiveNav.classList.remove('active');
+        inactiveNavs.forEach(nav => nav.classList.remove('active'));
     }
 
-    // Event listener untuk Home
-    homeNav.addEventListener('click', function () {
-        activateNav(homeNav, productItemNav, categoryNav);
-    });
+    homeNav.addEventListener('click', () => activateNav(homeNav, productItemNav, categoryNav));
+    productItemNav.addEventListener('click', () => activateNav(productItemNav, homeNav, categoryNav));
+    categoryNav.addEventListener('click', () => activateNav(categoryNav, homeNav, productItemNav));
 
-    // Event listener untuk Product Item
-    productItemNav.addEventListener('click', function () {
-        activateNav(productItemNav, homeNav, categoryNav);
-    });
-
-    categoryNav.addEventListener('click', function () {
-        activateNav(categoryNav, homeNav, productItemNav);
-    });
-
-    // Cek URL saat halaman dimuat
     const currentPath = window.location.pathname;
 
-    // Jika URL adalah /admin/home, aktifkan tombol Home
     if (currentPath === '/petugas/home') {
-        activateNav(homeNav, productItemNav);
+        activateNav(homeNav, productItemNav, categoryNav);
+        // Set "All" button as active on page load
+        const allButton = document.querySelector('.category-menu button[data-category="all"]');
+        if (allButton) {
+            allButton.classList.add('active');
+        }
     } else if (currentPath === '/petugas/product') {
-        activateNav(productItemNav, homeNav);
+        activateNav(productItemNav, homeNav, categoryNav);
     } else if (currentPath === '/petugas/category') {
         activateNav(categoryNav, homeNav, productItemNav);
     }
-});
 
-
-document.addEventListener('DOMContentLoaded', function () {
+    // Menangani klik kategori
+    const categoryButtons = document.querySelectorAll('.category-menu button');
     const productItems = document.querySelectorAll('.product-item');
+
+    // Set default button "All" as active
+    const defaultCategoryButton = document.querySelector('.category-menu button[data-category="all"]');
+    if (defaultCategoryButton) {
+        defaultCategoryButton.classList.add('active');
+    }
+
+    categoryButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            categoryButtons.forEach(btn => btn.classList.remove('active'));
+
+            // Add active class to the clicked button
+            button.classList.add('active');
+
+            const categoryId = button.getAttribute('data-category');
+
+            // Show or hide products based on selected category
+            productItems.forEach(item => {
+                const productCategory = item.getAttribute('data-category');
+                if (categoryId === 'all' || productCategory === categoryId) {
+                    item.style.display = 'block';
+                    item.classList.add('active'); // Add active class for design effect
+                } else {
+                    item.style.display = 'none';
+                    item.classList.remove('active'); // Remove active class
+                }
+            });
+        });
+    });
+
+    // Menangani klik tombol Add To Cart
     const transactionList = document.querySelector('.product-list');
     const subtotalElement = document.querySelector('.list-subtotal .row2 h3:nth-child(2)');
     let cart = [];
 
-    // Loop melalui setiap product-item
     productItems.forEach(item => {
-        const addToCartButton = item.querySelector('.add-to-cart button'); // Mengambil tombol Add To Cart
+        const addToCartButton = item.querySelector('.add-to-cart button');
 
-        // Tambahkan event listener hanya untuk tombol Add To Cart
-        addToCartButton.addEventListener('click', function (e) {
-            e.stopPropagation(); // Mencegah event bubbling
+        addToCartButton.addEventListener('click', (e) => {
+            e.stopPropagation();
             const productName = item.getAttribute('data-name');
             const productPrice = parseFloat(item.getAttribute('data-price'));
             let productStock = parseInt(item.getAttribute('data-stock'));
             const productImage = item.getAttribute('data-image');
 
-            // Cari produk yang sudah ada di cart
             const existingProduct = cart.find(product => product.name === productName);
 
             if (existingProduct) {
@@ -73,7 +95,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         image: productImage,
                         quantity: 1
                     });
-                    productStock -= 1;
                 } else {
                     alert("Out of stock.");
                 }
@@ -81,12 +102,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             item.setAttribute('data-stock', productStock);
             item.querySelector('h3').textContent = `Stock: ${productStock}`;
-
             updateCart();
         });
     });
 
-    // Fungsi untuk update cart
     function updateCart() {
         transactionList.innerHTML = '';
 
@@ -112,140 +131,109 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             `;
             transactionList.appendChild(productElement);
+
+            // Menangani klik tombol minus
+            productElement.querySelector('.minus').addEventListener('click', () => {
+                const existingProduct = cart.find(p => p.name === product.name);
+                if (existingProduct && existingProduct.quantity > 1) {
+                    existingProduct.quantity -= 1;
+                    existingProduct.stock += 1; // Tambah stok karena pengurangan quantity
+                    item.setAttribute('data-stock', existingProduct.stock);
+                } else {
+                    cart = cart.filter(p => p.name !== product.name);
+                }
+                updateCart();
+            });
+
+            // Menangani klik tombol plus
+            productElement.querySelector('.plus').addEventListener('click', () => {
+                if (product.stock > 0) {
+                    product.quantity += 1;
+                    product.stock -= 1; // Kurangi stok karena penambahan quantity
+                    item.setAttribute('data-stock', product.stock);
+                    updateCart();
+                } else {
+                    alert('Stok tidak mencukupi');
+                }
+            });
         });
 
+        // Hitung subtotal
         const subtotal = cart.reduce((sum, product) => sum + (product.price * product.quantity), 0);
         subtotalElement.textContent = `Rp. ${subtotal.toLocaleString('id-ID')}`;
     }
+
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('search-input');
+    const productItems = document.querySelectorAll('.product-item');
 
-item.addEventListener('click', function () {
-    const productId = item.getAttribute('data-id');
-    const productName = item.getAttribute('data-name');
-    const productPrice = parseFloat(item.getAttribute('data-price'));
-    let productStock = parseInt(item.getAttribute('data-stock'));
-    const productImage = item.getAttribute('data-image');
-
-    if (productStock > 0) {
-        fetch(`/product/decrease-stock/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    quantity: 1
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-
-                    productStock -= 1;
-                    item.setAttribute('data-stock', productStock);
-                    item.querySelector('h3').textContent = `Stock: ${productStock}`;
-
-                    const existingProduct = cart.find(product => product.name === productName);
-                    if (existingProduct) {
-                        existingProduct.quantity += 1;
-                    } else {
-                        cart.push({
-                            name: productName,
-                            price: productPrice,
-                            stock: productStock,
-                            image: productImage,
-                            quantity: 1
-                        });
-                    }
-
-                    updateCart();
-                } else {
-                    alert(data.message || 'Error updating stock');
-                }
-            })
-            .catch(error => console.error('Error:', error));
-    } else {
-        alert("Out of stock.");
-    }
-});
-
-addToCartButton.addEventListener('click', function (e) {
-    e.stopPropagation(); // Mencegah event bubbling
-    const productId = item.getAttribute('data-id');
-    const productName = item.getAttribute('data-name');
-    const productPrice = parseFloat(item.getAttribute('data-price'));
-    let productStock = parseInt(item.getAttribute('data-stock'));
-    const productImage = item.getAttribute('data-image');
-
-    if (productStock > 0) {
-        fetch(`/product/decrease-stock/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    quantity: 1
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update stok di interface setelah berhasil mengurangi di database
-                    productStock = data.stock;
-                    item.setAttribute('data-stock', productStock);
-                    item.querySelector('h3').textContent = `Stock: ${productStock}`;
-
-                    // Update cart
-                    const existingProduct = cart.find(product => product.name === productName);
-                    if (existingProduct) {
-                        existingProduct.quantity += 1;
-                    } else {
-                        cart.push({
-                            name: productName,
-                            price: productPrice,
-                            stock: productStock,
-                            image: productImage,
-                            quantity: 1
-                        });
-                    }
-
-                    updateCart();
-                } else {
-                    alert(data.message || 'Error updating stock');
-                }
-            })
-            .catch(error => console.error('Error:', error));
-    } else {
-        alert("Out of stock.");
-    }
-});
-
-
-productElement.querySelector('.plus').addEventListener('click', function () {
-    const productId = item.getAttribute('data-id');
-
-    fetch(`/product/increase-stock/${productId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                quantity: 1
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                productStock = data.stock;
-                item.setAttribute('data-stock', productStock);
-                item.querySelector('h3').textContent = `Stock: ${productStock}`;
-                updateCart();
+    function filterProducts(query) {
+        query = query.toLowerCase();
+        productItems.forEach(item => {
+            const productName = item.querySelector('h1').textContent.toLowerCase();
+            if (productName.includes(query)) {
+                item.style.display = 'block'; // Show product
             } else {
-                alert(data.message || 'Error updating stock');
+                item.style.display = 'none'; // Hide product
             }
-        })
-        .catch(error => console.error('Error:', error));
+        });
+    }
+
+    searchInput.addEventListener('input', function () {
+        filterProducts(searchInput.value);
+    });
 });
+
+
+// Plus Minus
+document.querySelectorAll('.minus-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const productId = this.getAttribute('data-id');
+        const quantityInput = this.nextElementSibling;
+        let quantity = parseInt(quantityInput.value);
+
+        if (quantity > 1) {
+            quantity--;
+            quantityInput.value = quantity;
+            updateStock(productId, quantity);
+        }
+    });
+});
+
+document.querySelectorAll('.plus-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const productId = this.getAttribute('data-id');
+        const quantityInput = this.previousElementSibling;
+        let quantity = parseInt(quantityInput.value);
+        const maxStock = parseInt(this.closest('.product-item').getAttribute('data-stock'));
+
+        if (quantity < maxStock) {
+            quantity++;
+            quantityInput.value = quantity;
+            updateStock(productId, quantity);
+        } else {
+            alert('Stock tidak mencukupi');
+        }
+    });
+});
+
+function updateStock(productId, quantity) {
+    fetch(`/product/update-stock/${productId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ quantity: quantity })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log(`Stock updated: ${data.stock}`);
+        } else {
+            alert('Gagal memperbarui stok');
+        }
+    });
+}

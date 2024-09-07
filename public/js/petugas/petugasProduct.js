@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Show the edit form and populate fields
-    window.showEditForm = function(id, name, price, stock, category, image) {
+    window.showEditForm = function(id, name, price, stock, categories_id, image) {
         const editForm = document.getElementById('edit-product-form');
         editForm.style.display = 'block';
         editForm.classList.add('show');
@@ -72,8 +72,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('edit_product_name').value = name;
         document.getElementById('edit_price').value = price;
         document.getElementById('edit_stock').value = stock;
-        document.getElementById('edit_category').value = category;
+        document.getElementById('edit_category').value = categories_id;
         document.getElementById('edit-image-preview').src = `/storage/${image}`;
     };
+
 
 });

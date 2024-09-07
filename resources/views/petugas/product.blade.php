@@ -37,8 +37,8 @@
                 <ul class="menu-links">
                     <li id="nav-home" class="nav-link">
                         <a href="/petugas/home">
-                            <i class='bx bx-home-alt icon'></i>
-                            <span class="text nav-text">Home</span>
+                            <i class='bx bxs-notepad icon'></i>
+                            <span class="text nav-text">Transaction</span>
                         </a>
                     </li>
 
@@ -78,6 +78,7 @@
 
     </nav>
 
+    <div id="overlay"></div>
     <section class="home">
         <div class="text">Product Item</div>
 
@@ -103,12 +104,10 @@
 
                 <div class="inline-fields">
                     <label for="category">Category</label>
-                    <select id="category" name="category" required>
-                        <option value="Burger">Burger</option>
-                        <option value="Pizza">Pizza</option>
-                        <option value="Ice Cream">Ice Cream</option>
-                        <option value="Drink">Drink</option>
-                        <option value="Other">Other</option>
+                    <select id="category" name="categories_id" required>
+                        @foreach ($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                        @endforeach
                     </select>
 
                     <div class="button-form">
@@ -121,14 +120,14 @@
         </div>
 
         <div id="edit-product-form" class="product-form" style="display:none;">
-            <form id="edit-form" method="POST" enctype="multipart/form-data">
+            <form id="edit-form" method="POST" enctype="multipart/form-data" class="edit-form">
                 @csrf
                 @method('PUT')
                 <label for="edit-image">Image</label>
                 <input type="file" id="edit-image" name="image">
                 <img id="edit-image-preview" src="" alt="" width="100">
 
-                <label for="edit_product_name">Product Name</label>
+                <label for="edit_product_namephp ">Product Name</label>
                 <input type="text" id="edit_product_name" name="product_name" required>
 
                 <label for="edit_price">Price</label>
@@ -138,16 +137,19 @@
                 <input type="number" id="edit_stock" name="stock" required>
 
                 <label for="edit_category">Category</label>
-                <select id="edit_category" name="category" required>
-                    <option value="Burger">Burger</option>
-                    <option value="Pizza">Pizza</option>
-                    <option value="Ice Cream">Ice Cream</option>
-                    <option value="Drink">Drink</option>
-                    <option value="Other">Other</option>
+                <select id="edit_category" name="categories_id" required>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}"
+                            @if (isset($product) && $product->categories_id == $category->id) selected @endif>
+                            {{ $category->category_name }}
+                        </option>
+                    @endforeach
                 </select>
 
-                <button type="submit">Update</button>
-                <button type="button" id="close-edit-form-btn">Cancel</button>
+                <div class="button-form">
+                    <button type="submit">Update</button>
+                    <button type="button" id="close-edit-form-btn">Cancel</button>
+                </div>
             </form>
         </div>
 
@@ -174,7 +176,7 @@
                             <td>{{ $product->product_name }}</td>
                             <td>{{ $product->price }}</td>
                             <td>{{ $product->stock }}</td>
-                            <td>{{ $product->category }}</td>
+                            <td>{{ $product->category->category_name }}</td>
                             <td>
                                 <form action="{{ route('petugas.product.destroy', $product->id) }}" method="POST"
                                     style="display:inline;">
@@ -189,7 +191,7 @@
                                         '{{ $product->product_name }}',
                                         {{ $product->price }},
                                         {{ $product->stock }},
-                                        '{{ $product->category }}',
+                                        '{{ $product->categories_id }}',
                                         '{{ $product->image }}'
                                     )">Edit</button>
                             </td>

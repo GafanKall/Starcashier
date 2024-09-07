@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->timestamp('date');
-            $table->decimal('total_harga', 10, 2);
+            $table->decimal('price', 10, 2);
             $table->foreignId('cashier_id')->constrained('users');
             $table->boolean('done');
             $table->timestamps();

@@ -430,6 +430,7 @@ button:hover {
     background-color: #0056b3;
 }
 
+
 .product-form {
     display: none;
     position: fixed;
@@ -443,6 +444,11 @@ button:hover {
     border-radius: 8px;
     opacity: 0;
     transition: opacity 0.3s, transform 0.3s;
+}
+
+.edit-form {
+    display: flex;
+    flex-direction: column;
 }
 
 .product-form.show {
@@ -463,7 +469,7 @@ button:hover {
     font-weight: bold;
 }
 
-.product-form input {
+.product-form input, select {
     width: 100%;
     padding: 10px;
     margin-bottom: 12px;
@@ -505,7 +511,8 @@ button:hover {
 }
 
 .inline-fields {
-    display: block; /* Mengubah flex menjadi block agar elemen berada di baris yang berbeda */
+    display: block;
+    flex-direction: column;
 }
 
 .inline-fields label,

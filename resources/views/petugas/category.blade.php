@@ -106,7 +106,8 @@
 
         <div id="edit-category-form" class="category-form" style="display:none;">
             <form id="edit-form" method="POST" enctype="multipart/form-data">
-
+                @csrf
+                @method('PUT') 
                 <label for="edit_category_name">Category Name</label>
                 <input type="text" id="edit_category_name" name="category_name" required>
 
@@ -126,19 +127,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($categorys as $categorys)
-
+                    @foreach ($categories as $category)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
-                            <td>{{ $categorys->category_name  }}</td>
+                            <td>{{ $category->category_name  }}</td>
                             <td>
-                                <form action="{{ route('petugas.category.destroy', $categorys->id) }}" method="POST" style="display:inline;" >
+                                <form action="{{ route('petugas.category.destroy', $category->id) }}" method="POST" style="display:inline;" >
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="delete-button"
                                         onclick="return confirm('Are you sure you want to delete this product?')">Delete</button>
                                 </form>
-                                <button class="show-form-btn">Edit</button>
+                                <button class="show-form-btn" onclick="showEditForm('{{ $category->id }}', '{{ $category->category_name }}')">Edit</button>
                             </td>
                         </tr>
                         @endforeach

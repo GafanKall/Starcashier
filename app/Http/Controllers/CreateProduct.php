@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class CreateProduct extends Controller
@@ -10,18 +11,21 @@ class CreateProduct extends Controller
     public function index()
     {
         $products = Product::all();
-        return view('petugas.index', ['products' => $products]);
+        $categories = Category::all();
+        return view('petugas.index', ['products' => $products], ['categories' => $categories]);
     }
 
     public function second()
     {
         $products = Product::all();
-        return view('petugas.product', ['products' => $products]);
+        $categories = Category::all();
+        return view('petugas.product', ['products' => $products], ['categories' => $categories]);
     }
 
     public function create()
     {
-        return view('petugas.product');
+        $categories = Category::all();
+        return view('petugas.product', ['categories' => $categories]);
     }
 
     public function store(Request $request)
@@ -31,7 +35,7 @@ class CreateProduct extends Controller
             'product_name' => 'required|string|max:255',
             'price' => 'required|integer',
             'stock' => 'required|integer',
-            'category' => 'required|string|max:255',
+            'categories_id' => 'required|exists:categories,id',
         ]);
 
         $path = $request->file('image')->store('public/images');
@@ -45,7 +49,8 @@ class CreateProduct extends Controller
     public function edit(Product $product)
     {
         $products = Product::all();
-        return view('petugas.product', compact('product', 'products'));
+        $categories = Category::all();
+        return view('petugas.product', compact('product', 'categories'));
     }
 
     public function update(Request $request, Product $product)
@@ -55,7 +60,7 @@ class CreateProduct extends Controller
             'product_name' => 'required|string|max:255',
             'price' => 'required|integer',
             'stock' => 'required|integer',
-            'category' => 'required|string|max:255',
+            'categories_id' => 'required|exists:categories,id',
         ]);
 
         if ($request->hasFile('image')) {
@@ -99,5 +104,22 @@ class CreateProduct extends Controller
 
         return response()->json(['success' => true, 'stock' => $product->stock]);
     }
+
+    public function updateStock(Request $request, Product $product)
+    {
+        $quantity = $request->input('quantity');
+
+        // Wrap stock update in a transaction to avoid race conditions
+        \DB::transaction(function () use ($product, $quantity) {
+            if ($product->stock >= $quantity) {
+                $product->stock -= $quantity;
+                $product->save();
+                return response()->json(['success' => true, 'stock' => $product->stock]);
+            }
+            return response()->json(['success' => false, 'message' => 'Insufficient stock']);
+        });
+    }
+
+
 
 }

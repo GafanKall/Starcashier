@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
+
+
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('image');
             $table->string('product_name');
             $table->integer('price');
             $table->integer('stock');
-            $table->enum('category', ['Burger', 'Pizza', 'Ice Cream', 'Drink', 'Other']);
+            $table->foreignId('categories_id')->constrained('categories')->onDelete('cascade');
             $table->timestamps();
         });
     }

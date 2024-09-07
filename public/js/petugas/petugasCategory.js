@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Show the edit form and populate fields
-    window.showEditForm = function(id, name) {
+    window.showEditForm = function(id, category_name) {
         const editForm = document.getElementById('edit-category-form');
         editForm.style.display = 'block';
         editForm.classList.add('show');
@@ -69,7 +69,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('edit-form').action = `/petugas/category/${id}`;
 
         // Set input values dynamically
-        document.getElementById('edit_category_name').value = name;
+        document.getElementById('edit_category_name').value = category_name;
     };
 
+
 });
+

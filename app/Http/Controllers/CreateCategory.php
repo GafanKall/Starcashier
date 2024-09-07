@@ -9,8 +9,8 @@ class CreateCategory extends Controller
 {
     public function index()
     {
-        $categorys = Category::all();
-        return view('petugas.category', ['categorys' => $categorys]);
+        $categories = Category::all();
+        return view('petugas.category', ['categories' => $categories]);
     }
 
     public function store(Request $request)
@@ -28,28 +28,42 @@ class CreateCategory extends Controller
 
     public function edit($id)
     {
-        $categorys = Category::find($id);
-        return view('petugas.category-edit', compact('category'));
+        $category = Category::find($id); // Ensure we find the category by ID
+        if (!$category) {
+            return redirect()->route('petugas.category')->with('error', 'Category not found!');
+        }
+
+        return response()->json($category); // Use JSON response for fetching data in JavaScript
     }
 
+    // Update function to save the edited category
     public function update(Request $request, $id)
     {
         $request->validate([
             'category_name' => 'required|string|max:255',
         ]);
 
+        $category = Category::find($id);
+        if (!$category) {
+            return redirect()->route('petugas.category')->with('error', 'Category not found!');
+        }
 
-        $categorys = Category::find($id);
-        $categorys->update([
+        $category->update([
             'category_name' => $request->category_name,
         ]);
 
         return redirect()->route('petugas.category')->with('success', 'Category updated successfully!');
     }
 
+    // Destroy function to delete the category
     public function destroy($id)
     {
-        Category::destroy($id);
+        $category = Category::find($id);
+        if (!$category) {
+            return redirect()->route('petugas.category')->with('error', 'Category not found!');
+        }
+
+        $category->delete();
         return redirect()->route('petugas.category')->with('success', 'Category deleted successfully!');
     }
 }

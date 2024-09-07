@@ -367,16 +367,6 @@ body.dark .sidebar li.nav-link.active a .text {
     border-radius: 10px;
 }
 
-.category-menu .default-button {
-    width: 120px;
-    height: 45px;
-    border-radius: 7px;
-    font-size: 1rem;
-    color: white;
-    background-color: var(--button-color);
-    border: var(--button-color) solid;
-}
-
 
 .category-menu button {
     width: 120px;
@@ -394,6 +384,12 @@ body.dark .sidebar li.nav-link.active a .text {
     color: white;
     transition: var(--tran-05);
     cursor: pointer;
+}
+
+.category-menu button.active {
+    background-color: var(--button-color);
+    color: #ffffff;
+    text-align: center;
 }
 
 .transaction {
@@ -434,12 +430,17 @@ body.dark .sidebar li.nav-link.active a .text {
     gap: 20px;
 }
 
+.category-menu button.active ~ .h3 {
+    text-align: center;
+}
+
 
 .product-item {
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
+    margin: 10px;
     flex-direction: column;
     width: 250px;
     height: 300px;
@@ -458,6 +459,7 @@ body.dark .sidebar li.nav-link.active a .text {
 .product-item h3 {
     display: flex;
     justify-items: start;
+    margin-top: 10px;
 
 }
 
