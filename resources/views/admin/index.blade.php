@@ -124,7 +124,7 @@
                 <tbody>
                     @foreach($products as $product)
                         <tr>
-                            <td><img src="{{ Storage::url($product->image) }}" alt="{{ $product->product_name }}" style="width: 50px; height: auto;"></td>
+                            <td><img src="{{ asset('images/' . $product->image) }}" alt="{{ $product->product_name }}" style="width: 50px; height: auto;"></td>
                             <td>{{ $product->product_name }}</td>
                             <td>{{ $product->stock }}</td>
                         </tr>

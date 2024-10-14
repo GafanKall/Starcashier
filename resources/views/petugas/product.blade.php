@@ -116,7 +116,6 @@
                     </div>
                 </div>
             </form>
-
         </div>
 
         <div id="edit-product-form" class="product-form" style="display:none;">
@@ -127,7 +126,7 @@
                 <input type="file" id="edit-image" name="image">
                 <img id="edit-image-preview" src="" alt="" width="100">
 
-                <label for="edit_product_namephp ">Product Name</label>
+                <label for="edit_product_name">Product Name</label>
                 <input type="text" id="edit_product_name" name="product_name" required>
 
                 <label for="edit_price">Price</label>
@@ -171,7 +170,7 @@
                     @foreach ($products as $product)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
-                            <td><img src="{{ Storage::url($product->image) }}" alt="{{ $product->product_name }}"
+                            <td><img src="{{ asset('images/' . $product->image) }}" alt="{{ $product->product_name }}"
                                     width="50"></td>
                             <td>{{ $product->product_name }}</td>
                             <td>{{ $product->price }}</td>

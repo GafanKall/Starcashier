@@ -6,6 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="{{ asset('../images/LOGO.png') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
 
     <!----======== CSS ======== -->
     <link rel="stylesheet" href="{{ asset('css/petugas/petugasHome.css') }}">
@@ -106,26 +108,117 @@
             <div class="text">Choose Order</div>
             <div class="product">
                 @foreach ($products as $product)
-                    <div class="product-item" data-name="{{ $product->product_name }}"
+                    <div class="product-item" data-id="{{ $product->id }}" data-name="{{ $product->product_name }}"
                         data-price="{{ $product->price }}" data-stock="{{ $product->stock }}"
-                        data-image="{{ Storage::url($product->image) }}"
+                        data-image="{{ asset('storage/' . $product->image) }}"
                         data-category="{{ $product->categories_id }}">
-                        <img src="{{ Storage::url($product->image) }}" alt="{{ $product->product_name }}">
+                        <img src="{{ asset('images/' . $product->image) }}" alt="{{ $product->product_name }}">
                         <h1>{{ $product->product_name }}</h1>
                         <p>Rp. {{ number_format($product->price, 0, ',', '.') }}</p>
                         <h3>Stock: {{ $product->stock }}</h3>
                         <div class="add-to-cart">
-                            <button>Add To Cart +</button>
+                            <button type="button">Add To Cart +</button>
                         </div>
                     </div>
                 @endforeach
             </div>
 
-
         </div>
+
+        <div id="charge-form" class="charge-form" style="display: none;">
+            <form action="{{ route('transaction.submit') }}" method="POST" id="transaction-form"
+                action="/submit-transaction">
+                @csrf
+                <input type="hidden" name="products" id="products" value='[]'>
+                <input type="hidden" name="total_amount">
+                <input type="hidden" name="total_payment">
+                <div class="form-group">
+                    <h3 for="order-details">Order Details:</h3>
+                    <div id="order-details" class="detail-list">
+                    </div>
+                </div>
+                <div class="charge-detail">
+                    <div class="form-group">
+                        <label for="total-amount">Total Price (Rp.):</label>
+                        <input type="number" id="total-amount" name="total_amount" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="total-payment">Total Payment (Rp.):</label>
+                        <input type="number" id="total-payment" name="total_payment">
+                    </div>
+                    <button type="submit" class="submit-button">Submit Order</button>
+                    <button type="button" class="cancel-button" id="cancel-order">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+
+
         <div class="transaction">
             <h1>Order Menu</h1>
             <div class="product-list">
+                {{-- <div class="list-order">
+                    <div class="image-product">
+                        <img src="{{ asset('images/P6.png') }}" alt="">
+                    </div>
+                    <div class="total">
+                        <div class="total-product">
+                            <h3>Coca Cola</h3>
+                            <h3>(2)</h3>
+                        </div>
+                        <p>Rp. 35.000</p>
+                    </div>
+                    <div class="subtotal">
+                        <p>Rp. 10.000</p>
+                    </div>
+                </div> --}}
+                {{-- <div class="list-order">
+                    <div class="image-product">
+                        <img src="{{ asset('images/P5.png') }}" alt="">
+                    </div>
+                    <div class="total">
+                        <div class="total-product">
+                            <h3>Ice Cream Oreo</h3>
+                            <h3>(2)</h3>
+                        </div>
+                        <p>Rp. 35.000</p>
+                    </div>
+                    <div class="subtotal">
+                        <p>Rp. 70.000</p>
+                    </div>
+                </div>
+                <div class="list-order">
+                    <div class="image-product">
+                        <img src="{{ asset('images/P5.png') }}" alt="">
+                    </div>
+                    <div class="total">
+                        <div class="total-product">
+                            <h3>Ice Cream Oreo</h3>
+                            <h3>(2)</h3>
+                        </div>
+                        <p>Rp. 35.000</p>
+                    </div>
+                    <div class="subtotal">
+                        <p>Rp. 70.000</p>
+                    </div>
+                </div>
+                <div class="list-order">
+                    <div class="image-product">
+                        <img src="{{ asset('images/P5.png') }}" alt="">
+                    </div>
+                    <div class="total">
+                        <div class="total-product">
+                            <h3>Ice Cream Oreo</h3>
+                            <h3>(2)</h3>
+                        </div>
+                        <p>Rp. 35.000</p>
+                    </div>
+                    <div class="subtotal">
+                        <p>Rp. 70.000</p>
+                    </div>
+                </div> --}}
+                <div>
+                </div>
             </div>
             <div class="list-subtotal">
                 <div class="confirm-subtotal">
@@ -140,12 +233,13 @@
                         </div>
                     </div>
                 </div>
+                <button class="charge">Charge Rp.</button>
             </div>
-            <button class="charge">Charge Rp.</button>
         </div>
+
+
     </section>
     <script src="{{ asset('js/petugas/petugasHome.js') }}"></script>
-
 </body>
 
 </html>

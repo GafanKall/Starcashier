@@ -1,13 +1,12 @@
 <?php
 
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\CreateCategory;
 use App\Http\Controllers\CreatePetugas;
 use App\Http\Controllers\CreateProduct;
 use App\Http\Controllers\LandingPage;
 use App\Http\Controllers\Admin;
-use App\Http\Controllers\Petugas;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Product;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -73,3 +72,6 @@ Route::post('/petugas/category', [CreateCategory::class, 'store'])->name('petuga
 Route::get('/petugas/category/{category}/edit', [CreateCategory::class, 'edit'])->name('petugas.category.edit');
 Route::put('/petugas/category/{category}', [CreateCategory::class, 'update'])->name('petugas.category.update');
 Route::delete('/petugas/category/{category}', [CreateCategory::class, 'destroy'])->name('petugas.category.destroy');
+
+
+Route::post('/submit-transaction', [TransactionController::class, 'submitTransaction'])->name('transaction.submit');

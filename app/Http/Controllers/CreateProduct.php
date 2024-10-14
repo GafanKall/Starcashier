@@ -121,5 +121,9 @@ class CreateProduct extends Controller
     }
 
 
+    public function getProducts() {
+        $products = Product::all(); // Mengambil semua produk
+        return response()->json($products);
+    }
 
 }

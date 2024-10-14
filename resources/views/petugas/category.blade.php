@@ -37,8 +37,8 @@
                 <ul class="menu-links">
                     <li id="nav-home" class="nav-link">
                         <a href="/petugas/home">
-                            <i class='bx bx-home-alt icon'></i>
-                            <span class="text nav-text">Home</span>
+                            <i class='bx bxs-notepad icon'></i>
+                            <span class="text nav-text">Transaction</span>
                         </a>
                     </li>
 
@@ -107,7 +107,7 @@
         <div id="edit-category-form" class="category-form" style="display:none;">
             <form id="edit-form" method="POST" enctype="multipart/form-data">
                 @csrf
-                @method('PUT') 
+                @method('PUT')
                 <label for="edit_category_name">Category Name</label>
                 <input type="text" id="edit_category_name" name="category_name" required>
 
