@@ -601,8 +601,8 @@ body.dark .sidebar li.nav-link.active a .text {
 }
 
 .charge-form {
-    top: 0;
-    left: 0;
+    top: 10;
+    left: 50;
     width: 100%;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.5);

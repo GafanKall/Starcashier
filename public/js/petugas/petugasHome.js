@@ -1,33 +1,33 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // Aktivasi dan penonaktifan status navigasi sidebar
-    const homeNav = document.getElementById('nav-home');
-    const productItemNav = document.getElementById('nav-product-item');
-    const categoryNav = document.getElementById('nav-category');
+document.addEventListener('DOMContentLoaded', () => {
+    // **Navigasi Sidebar**
+    const navItems = {
+        home: document.getElementById('nav-home'),
+        product: document.getElementById('nav-product-item'),
+        category: document.getElementById('nav-category'),
+    };
 
-    function activateNav(activeNav, ...inactiveNavs) {
-        activeNav.classList.add('active');
-        inactiveNavs.forEach(nav => nav.classList.remove('active'));
+    function activateNav(active, ...others) {
+        active.classList.add('active');
+        others.forEach(nav => nav.classList.remove('active'));
     }
 
-    homeNav.addEventListener('click', () => activateNav(homeNav, productItemNav, categoryNav));
-    productItemNav.addEventListener('click', () => activateNav(productItemNav, homeNav, categoryNav));
-    categoryNav.addEventListener('click', () => activateNav(categoryNav, homeNav, productItemNav));
+    Object.entries(navItems).forEach(([key, nav]) => {
+        nav.addEventListener('click', () => {
+            activateNav(nav, ...Object.values(navItems).filter(item => item !== nav));
+        });
+    });
 
     const currentPath = window.location.pathname;
-
-    if (currentPath === '/petugas/home') {
-        activateNav(homeNav, productItemNav, categoryNav);
-        const allButton = document.querySelector('.category-menu button[data-category="all"]');
-        if (allButton) {
-            allButton.classList.add('active');
-        }
-    } else if (currentPath === '/petugas/product') {
-        activateNav(productItemNav, homeNav, categoryNav);
-    } else if (currentPath === '/petugas/category') {
-        activateNav(categoryNav, homeNav, productItemNav);
+    if (currentPath.includes('/petugas/home')) {
+        activateNav(navItems.home, navItems.product, navItems.category);
+        document.querySelector('.category-menu button[data-category="all"]')?.classList.add('active');
+    } else if (currentPath.includes('/petugas/product')) {
+        activateNav(navItems.product, navItems.home, navItems.category);
+    } else if (currentPath.includes('/petugas/category')) {
+        activateNav(navItems.category, navItems.home, navItems.product);
     }
 
-    // Menangani klik tombol kategori
+    // **Filter Kategori Produk**
     const categoryButtons = document.querySelectorAll('.category-menu button');
     const productItems = document.querySelectorAll('.product-item');
 
@@ -38,15 +38,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const categoryId = button.getAttribute('data-category');
             productItems.forEach(item => {
-                const productCategory = item.getAttribute('data-category');
-                item.style.display = (categoryId === 'all' || productCategory === categoryId) ? 'block' : 'none';
+                item.style.display = (categoryId === 'all' || item.getAttribute('data-category') === categoryId) ? 'block' : 'none';
             });
         });
     });
 
-    // Menangani klik tombol Add to Cart
+    // **Keranjang Belanja**
     const transactionList = document.querySelector('.product-list');
     const subtotalElement = document.querySelector('.list-subtotal .row2 h3:nth-child(2)');
+    const chargeButton = document.querySelector('.charge');
     let cart = [];
 
     function updateCart() {
@@ -79,6 +79,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     existingProduct.stock += 1;
                 } else {
                     cart = cart.filter(p => p.name !== product.name);
+
+                    // Aktifkan kembali tombol "Add to Cart"
+                    const productItem = document.querySelector(`.product-item[data-name="${product.name}"]`);
+                    if (productItem) {
+                        const addToCartButton = productItem.querySelector('.add-to-cart button');
+                        addToCartButton.disabled = false;
+
+                        // Perbarui stok di atribut data
+                        const stock = parseInt(productItem.getAttribute('data-stock')) + existingProduct.quantity;
+                        productItem.setAttribute('data-stock', stock);
+                        productItem.querySelector('h3').textContent = `Stock: ${stock}`;
+                    }
                 }
                 updateCart();
             });
@@ -89,86 +101,103 @@ document.addEventListener('DOMContentLoaded', function () {
                     product.stock -= 1;
                     updateCart();
                 } else {
-                    alert('Stok tidak mencukupi');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Out of stock!',
+                        text: `Stock for ${product.name} is out`,
+                    });
                 }
             });
         });
 
         const subtotal = cart.reduce((sum, product) => sum + (product.price * product.quantity), 0);
         subtotalElement.textContent = `Rp. ${subtotal.toLocaleString('id-ID')}`;
+
+        // Update tombol Charge dengan total
+        const chargeButton = document.querySelector('.charge');
+        chargeButton.textContent = `Charge Rp. ${subtotal.toLocaleString('id-ID')}`;
+    }
+
+    function modifyQuantity(productName, delta) {
+        const product = cart.find(p => p.name === productName);
+        if (!product) return;
+
+        if (delta > 0 && product.stock > 0) {
+            product.quantity += delta;
+            product.stock -= delta;
+        } else if (delta < 0 && product.quantity > 0) {
+            product.quantity += delta;
+            product.stock -= delta;
+        }
+
+        if (product.quantity === 0) {
+            cart = cart.filter(p => p.name !== productName);
+        }
+
+        // Update stok di tampilan
+        const productItem = document.querySelector(`.product-item[data-name="${product.name}"]`);
+        if (productItem) {
+            const updatedStock = parseInt(productItem.getAttribute('data-stock')) + delta;
+            productItem.setAttribute('data-stock', updatedStock);
+            productItem.querySelector('h3').textContent = `Stock: ${updatedStock}`;
+        }
+
+        updateCart();
     }
 
     productItems.forEach(item => {
         const addToCartButton = item.querySelector('.add-to-cart button');
-
-        addToCartButton.addEventListener('click', (e) => {
-            e.stopPropagation();
+        addToCartButton.addEventListener('click', () => {
             const productName = item.getAttribute('data-name');
             const productPrice = parseFloat(item.getAttribute('data-price'));
-            let productStock = parseInt(item.getAttribute('data-stock'));
+            const productStock = parseInt(item.getAttribute('data-stock'));
             const productImage = item.getAttribute('data-image');
 
             const existingProduct = cart.find(product => product.name === productName);
-
             if (existingProduct) {
                 if (existingProduct.quantity < productStock) {
                     existingProduct.quantity += 1;
-                    productStock -= 1;
+                    existingProduct.stock -= 1;
                 } else {
-                    alert("Product stock limit reached.");
+                    Swal.fire('Oops!', 'Stock limit reached.', 'warning');
                 }
+            } else if (productStock > 0) {
+                cart.push({
+                    name: productName,
+                    price: productPrice,
+                    stock: productStock - 1,
+                    image: productImage,
+                    quantity: 1
+                });
             } else {
-                if (productStock > 0) {
-                    cart.push({
-                        name: productName,
-                        price: productPrice,
-                        stock: productStock - 1,
-                        image: productImage,
-                        quantity: 1
-                    });
-                } else {
-                    alert("Out of stock.");
-                }
+                Swal.fire('Oops!', 'Out of stock.', 'error');
             }
 
-            item.setAttribute('data-stock', productStock);
-            item.querySelector('h3').textContent = `Stock: ${productStock}`;
-            updateCart();
-
-            // Disable Add To Cart button
+            item.setAttribute('data-stock', productStock - 1);
+            item.querySelector('h3').textContent = `Stock: ${productStock - 1}`;
             addToCartButton.disabled = true;
+
+            updateCart();
         });
     });
 
-    // Menangani pencarian produk
+    // **Pencarian Produk**
     const searchInput = document.getElementById('search-input');
-
-    function filterProducts(query) {
-        query = query.toLowerCase();
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase();
         productItems.forEach(item => {
             const productName = item.querySelector('h1').textContent.toLowerCase();
             item.style.display = productName.includes(query) ? 'block' : 'none';
         });
-    }
-
-    searchInput.addEventListener('input', function () {
-        filterProducts(searchInput.value);
     });
 
-    // Menangani klik tombol Charge
-    const chargeButton = document.querySelector('.charge');
+    // **Tombol Charge**
     const chargeForm = document.getElementById('charge-form');
     const cancelButton = chargeForm.querySelector('.cancel-button');
 
     chargeButton.addEventListener('click', () => {
         const formItemsContainer = chargeForm.querySelector('#order-details');
         formItemsContainer.innerHTML = '';
-
-        const productsInput = document.createElement('input');
-        productsInput.type = 'hidden';
-        productsInput.name = 'products';
-        productsInput.value = JSON.stringify(cart);
-        chargeForm.appendChild(productsInput);
 
         cart.forEach(product => {
             const productElement = document.createElement('div');
@@ -181,59 +210,50 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="form-subtotal">
                         <p>Rp. ${(product.price * product.quantity).toLocaleString('id-ID')}</p>
                     </div>
-                </div>
-            `;
+                </div>`;
+
             formItemsContainer.appendChild(productElement);
         });
-
-        const formSubtotal = chargeForm.querySelector('#total-amount');
-        const total = cart.reduce((sum, product) => sum + (product.price * product.quantity), 0);
-        formSubtotal.value = total;
 
         chargeForm.style.display = 'block';
     });
 
-
     cancelButton.addEventListener('click', () => {
         chargeForm.style.display = 'none';
     });
-});
 
-$(document).ready(function() {
-    // Data produk yang dipilih, bisa diambil dari suatu list di halaman
-    const products = [
-        { id: 1, quantity: 2 },
-        { id: 2, quantity: 3 }
-    ];
+    // **Submit Transaksi**
+    $('#submitTransaction').on('click', function (e) {
+        e.preventDefault();
 
-    // Ketika tombol submit diklik
-    $('#submitTransaction').on('click', function(e) {
-        e.preventDefault(); // Mencegah form reload
-
-        // Ambil nilai total amount dan total payment dari hidden input
         const totalAmount = $('#total_amount').val();
         const totalPayment = $('#total_payment').val();
+        const products = $('#charge-form input[name="products"]').val();
 
-        // Kirim data via AJAX
+        if (!products || JSON.parse(products).length === 0) {
+            Swal.fire('Oops!', 'No products selected for the transaction!', 'warning');
+            return;
+        }
+
         $.ajax({
-            url: "{{ route('transaction.submit') }}",  // Ganti dengan route yang sesuai
+            url: "{{ route('transaction.submit') }}",
             method: 'POST',
             data: {
                 _token: $('meta[name="csrf-token"]').attr('content'),
-                products: JSON.stringify(products),
+                products,
                 total_amount: totalAmount,
-                total_payment: totalPayment,
+                total_payment: totalPayment
             },
-            success: function(response) {
-                if(response.success) {
-                    alert('Transaction successful!');
-                } else {
-                    alert(response.message);
-                }
+            success: function (response) {
+                Swal.fire(
+                    response.success ? 'Success!' : 'Error!',
+                    response.success ? 'Transaction successful!' : response.message,
+                    response.success ? 'success' : 'error'
+                );
             },
-            error: function(xhr, status, error) {
+            error: function (xhr) {
                 console.error(xhr.responseText);
-                alert('Something went wrong, please try again.');
+                Swal.fire('Error!', 'Something went wrong, please try again.', 'error');
             }
         });
     });

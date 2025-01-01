@@ -12,8 +12,6 @@ class TransactionController extends Controller
 {
     public function submitTransaction(Request $request)
 {
-    // Debug untuk memastikan data terkirim
-    dd($request->all());  // Debug semua data request yang diterima
 
     // Decode JSON dari input 'products'
     $products = json_decode($request->input('products'), true);
